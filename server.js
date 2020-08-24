@@ -10,19 +10,23 @@ app.use(express.static('./public'));
 
 //================================================== Routes ===============================================================
 app.set('view engine', 'ejs');
-app.get('/', noNameFunction);
-app.get('/searches/new', usersToSearch)
+// app.get('/', renderIndex);
+app.get('/', usersToSearch);
 
 //================================================== Route Handlers =======================================================
 
 
 //================================================== Functions ============================================================
-function noNameFunction(req, res){
+function renderIndex(req, res){
   console.log('this is working');
   res.render('index');
 }
 
-
+function usersToSearch (req,res){
+  console.log(req.query);
+  res.render('new');
+}
 
 //================================================== Start the server =====================================================
 app.listen(PORT, () => console.log(`We are doing it live on ${PORT}`));
+
