@@ -1,0 +1,4 @@
+CREATE TABLE potato (
+  id SERIAL PRIMARY KEY,
+  task VARCHAR(255) NOT NULL,
+)
