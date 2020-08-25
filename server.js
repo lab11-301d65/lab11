@@ -1,6 +1,6 @@
 //================================================== Packages =============================================================
 const express = require('express');
-const cors = require('cors');
+// const cors = require('cors');
 const superagent = require('superagent');
 
 //================================================== Global Vars ==========================================================
@@ -10,73 +10,53 @@ app.use(express.static('./public'));
 
 //================================================== Routes ===============================================================
 app.set('view engine', 'ejs');
-app.get('/', usersToSearch);
-
-
-//================================================== Route Handlers =======================================================
-app.get('/searches', masterGoogleSort);
+app.get('/', masterGoogleSorter);
 
 
 //================================================== Functions ============================================================
-function renderIndex (req, res){
-  console.log('this is working');
-  res.render('index');
-}
-
-function usersToSearch (req,res){
+function masterGoogleSorter (req,res){
   res.render('new');
 
+  if(req.query.userSearch[1] === 'Author'){
+    console.log('you found an author ' + req.query.userSearch[0])
+
+    let searchSubject = req.query.userSearch[0];
+    const urlSubject = `https://www.googleapis.com/books/v1/volumes?q=+subject:${searchSubject}`;
+  
+    superagent.get(urlSubject)
+      .then(bookData => {
+        console.log(bookData.items.volumeInfo);
+      });
+
+
+  }else if(req.query.userSearch[1] === 'Title'){
+    console.log('you found a title ' + req.query.userSearch[0])
+
+    let searchTitle = req.query.userSearch[0];
+    const urlTitle = `https://www.googleapis.com/books/v1/volumes?q=+intitle:${searchTitle}`;
+  
+    superagent.get(urlTitle)
+      .then(bookData => {
+        console.log(bookData.body);
+    });
+
+
+  }else if(req.query.userSearch[1] === 'Subject'){
+    console.log('you found a subject ' + req.query.userSearch[0])
+
+    let searchAuthor = req.query.userSearch[0];
+    const urlAuthor = `https://www.googleapis.com/books/v1/volumes?q=+inauthor:${searchAuthor}`;
+  
+    superagent.get(urlAuthor)
+      .then(bookData => {
+        console.log(bookData);
+    });
+  }
 }
 
 // handle in one function call
 // if second value is author send ---> author URL
 // conditional statement to determine which URL to use
-
-function masterGoogleSort (req,res){
-  console.log('from master Google Sort: ' , req.query);
-
-}
-
-
-
-
-
-function getBookByAuthor (req,res){
-  let searchAuthor = req.query.author;
-
-  const urlAuthor = `https://www.googleapis.com/books/v1/volumes?q=+inauthor:${searchAuthor}`;
-
-  superagent.get(urlAuthor)
-    .then(bookData => {
-      console.log(bookData.body);
-    });
-
-}
-
-function getBookByTitle (req,res){
-  let searchTitle = req.query.title;
-  const urlTitle = `https://www.googleapis.com/books/v1/volumes?q=+intitle:${searchTitle}`;
-
-  superagent.get(urlTitle)
-    .then(bookData => {
-      console.log(bookData.body);
-    });
-
-
-}
-
-function getBookBySubject (req,res){
-  let searchSubject = req.query.subject;
-  const urlSubject = `https://www.googleapis.com/books/v1/volumes?q=+subject:${searchSubject}`;
-
-  superagent.get(urlSubject)
-    .then(bookData => {
-      console.log(bookData.items.volumeInfo);
-    });
-
-}
-
-
 
 function Book (bookJsonData){
   this.title = bookJsonData.title;
