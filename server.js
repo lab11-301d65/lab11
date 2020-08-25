@@ -1,3 +1,4 @@
+'use strict';
 //================================================== Packages =============================================================
 require('dotenv').config(); // allows server to understand we have a .env that holds secrets 
 const express = require('express');
@@ -24,6 +25,10 @@ app.get('/', renderHomePage);
 app.get('/views/pages/searches', renderNewEJS);
 app.post('/views/pages/searches', renderSearchPage);
 
+
+//single book route
+app.get('/books/:id', oneBookFromDatabase);
+
 //================================================== Functions ============================================================
 function renderHomePage (req,res){
   client.query('SELECT * FROM book_saver WHERE id=$1', [req.params.potatoId])
@@ -32,17 +37,18 @@ function renderHomePage (req,res){
   });
 }
 
+// pg start
+// databasename matches new database
+
 function renderNewEJS (req, res){
   res.render('pages/searches/new.ejs');
 }
 
-// TODO: the whole route handler POST request thing --> route is working but I can't find the req.query.userSearch values in the new POST info
 
 //this needs to be its own function, having a render it it has it return just the render, then do nothing after
 function renderSearchPage (req,res){
   const inputText = req.body.userSearch;
-  // console.log(inputText)
-  
+
   let userRadioButton = inputText[1];
   let userFormText = inputText[0];
   let authorQuery = 'inauthor';
@@ -63,16 +69,33 @@ function renderSearchPage (req,res){
   superagent.get(googleBooksUrl)
     .then(bookData => {
       const books = bookData.body.items;
+    
       let bookApiArray = books.map(construct => new Book (construct))
       console.log(bookApiArray[0].img)
+
       res.render('pages/searches/show.ejs', {
         booksToFrontEnd : bookApiArray
-      })
-    });
-    // .catch(error => errorHandler(error, res));
+      });
+    })
+    .catch(error => errorHandler(error, res));
 }
-//create function error handler
-//  TODO: render API results to page
+
+function errorHandler (error, res){
+  res.render('pages/error.ejs', {error});
+}
+
+
+// TODO:
+function oneBookFromDatabase (req,res){
+  // make request for single book from database that returns the details
+  // of the book
+
+  client.query('SELECT * FROM todos WHERE id=$1' [request.params.potatoId])
+    // .then (result => {
+    //   response.render('/pages/books/detail.ejs' {task : result.rows[0]})
+    // })
+    .catch(error => errorHandler(error,res));
+}
 
 
 //================================================== Constructor ============================================================
@@ -80,6 +103,7 @@ function Book (bookJsonData){
   this.title = bookJsonData.volumeInfo.title;
   this.author = bookJsonData.volumeInfo.authors;
   this.description = bookJsonData.volumeInfo.description;
+  this.isbn = 0;
 
   let imgCheck = bookJsonData.volumeInfo.imageLinks;
 

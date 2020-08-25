@@ -1,0 +1,9 @@
+<section>
+  <% for(let i =0; i < booksToFrontEnd.length; i++){ %>
+    <h2><%= booksToFrontEnd[i].title %></h2>
+    <p><%= booksToFrontEnd[i].author %></p>
+    <p><%= booksToFrontEnd[i].description %></p>
+    <p><%= booksToFrontEnd[i].isbn %></p>
+    <img src="<%= booksToFrontEnd[i].imgUrl %>" alt="">
+ <% } %>
+</section>
