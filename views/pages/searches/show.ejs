@@ -18,7 +18,14 @@
   </nav>
 
   <h1>RENDERING BOOKS N STUFF</h1>
-
+  <ul>
+    <% for(let i =0; i < booksToFrontEnd.length; i++){ %>
+    <li>
+      <h2><%= booksToFrontEnd[i].title %></h2>
+      <img src="<%= booksToFrontEnd[i].imgUrl %>" alt="">
+    </li>
+   <% } %>
+  </ul>
 
 </body>
 

@@ -9,51 +9,38 @@ const { response } = require('express');
 
 //================================================== Global Vars ==========================================================
 
-const PORT = process.env.PORT || 3003;
+const PORT = process.env.PORT || 3002;
 const app = express();
 let bookApiArray = [];
 
 app.use(express.static('./public'));
+app.use(express.urlencoded({extended: true})); // this is a bodyparser that breaks up form input and puts it into the req.body
 app.use(cors());
 
 //================================================== Routes ===============================================================
 app.set('view engine', 'ejs');
-app.get('/', renderIndex);
-
-// renders search page
-// app.get('/views/pages/searches', renderSearchPage);
-
-app.get('/views/pages/searches', masterGoogleSorter);
-
-// TODO: POST call once user hits submit button
-// app.post('/views/pages/searches', masterGoogleSorter);
+app.get('/', renderHomePage);
+app.get('/views/pages/searches', renderNewEJS);
+app.post('/views/pages/searches', renderSearchPage);
 
 //================================================== Functions ============================================================
-function renderIndex (req,res){
-  res.render('./pages/index');
+function renderHomePage (req,res){
+  res.render('index');
 }
 
-function renderSearchPage (req,res){
+function renderNewEJS (req, res){
   res.render('pages/searches/new.ejs');
 }
-
-// TODO: fix render show page function
-// ERR: HTTP HEADERS SENT
-function renderShowPage (req,res){
-  res.render('pages/searches/show', {});
-}
-
 
 // TODO: the whole route handler POST request thing --> route is working but I can't find the req.query.userSearch values in the new POST info
 
-function masterGoogleSorter (req,res){
-  res.render('pages/searches/new.ejs');
+//this needs to be its own function, having a render it it has it return just the render, then do nothing after
+function renderSearchPage (req,res){
+  const inputText = req.body.userSearch;
+  console.log(inputText);
 
-  console.log('POST REQUEST WORKING');
-  console.log(req);
-
-  let userRadioButton = req.query.userSearch[1];
-  let userFormText = req.query.userSearch[0];
+  let userRadioButton = inputText[1];
+  let userFormText = inputText[0];
   let authorQuery = 'inauthor';
   let titleQuery = 'intitle';
   let subjectQuery = 'subject';
@@ -69,25 +56,23 @@ function masterGoogleSorter (req,res){
     queryParameter = subjectQuery;
   }
 
-  // console.log('QUERY: ', queryParameter);
   superagent.get(googleBooksUrl)
     .then(bookData => {
       const books = bookData.body.items;
-      console.log('URL: ', googleBooksUrl);
-
       bookApiArray = books.map(construct => new Book (construct));
-      console.log('CONSTRUCTED BOOK DATA: ', bookApiArray);
+      res.render('pages/searches/show.ejs', {
+        booksToFrontEnd : bookApiArray
+      });
     })
-    .then(res.render('./searches/show', {key : bookApiArray})) // TODO: fix render show page function
-    .catch(error => console.log(error));
+    .catch(error => errorHandler(error, res));
 }
 
-//  TODO: render API results to page
+function errorHandler (error, res){
+  res.render('pages/error.ejs', {error});
+}
 
 
 //================================================== Constructor ============================================================
-
-
 function Book (bookJsonData){
   this.title = bookJsonData.volumeInfo.title;
   this.author = bookJsonData.volumeInfo.authors;
