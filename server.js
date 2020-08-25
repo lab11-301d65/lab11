@@ -16,10 +16,17 @@ app.use(cors());
 
 //================================================== Routes ===============================================================
 app.set('view engine', 'ejs');
-app.get('/', masterGoogleSorter);
+app.get('/', renderIndex);
 
+app.set('/pages/searches','ejs');
+app.get('/pages/searches', masterGoogleSorter);
 
 //================================================== Functions ============================================================
+function renderIndex (req,res){
+  res.render('index');
+}
+
+
 function masterGoogleSorter (req,res){
   res.render('new');
 
@@ -72,6 +79,9 @@ function masterGoogleSorter (req,res){
   }
 }
 
+function renderBooks (req,res){
+
+}
 
 //================================================== Constructor ============================================================
 
