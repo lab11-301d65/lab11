@@ -1,3 +1,4 @@
+'use strict';
 //================================================== Packages =============================================================
 
 const express = require('express');
@@ -29,7 +30,7 @@ app.get('/views/pages/searches', masterGoogleSorter);
 
 //================================================== Functions ============================================================
 function renderIndex (req,res){
-  res.render('index');
+  res.render('./pages/index');
 }
 
 function renderSearchPage (req,res){
@@ -39,7 +40,7 @@ function renderSearchPage (req,res){
 // TODO: fix render show page function
 // ERR: HTTP HEADERS SENT
 function renderShowPage (req,res){
-  res.render('pages/searches/show.ejs');
+  res.render('pages/searches/show', {});
 }
 
 
@@ -77,7 +78,7 @@ function masterGoogleSorter (req,res){
       bookApiArray = books.map(construct => new Book (construct));
       console.log('CONSTRUCTED BOOK DATA: ', bookApiArray);
     })
-    .then(renderShowPage(req,res)) // TODO: fix render show page function
+    .then(res.render('./searches/show', {key : bookApiArray})) // TODO: fix render show page function
     .catch(error => console.log(error));
 }
 
