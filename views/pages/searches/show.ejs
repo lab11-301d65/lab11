@@ -4,12 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>SHOW STUFF</title>
-
-
 </head>
 
 <body>
-
   <nav>
     <ul>
       <li><a href="/">Home</a></li>
@@ -22,7 +19,8 @@
     <% for(let i =0; i < booksToFrontEnd.length; i++){ %>
     <li>
       <h2><%= booksToFrontEnd[i].title %></h2>
-      <img src="<%= booksToFrontEnd[i].imgUrl %>" alt="">
+      <h3><%= booksToFrontEnd[i].description %></h3>
+      <img src="<%= booksToFrontEnd[i].img %>" alt="">
     </li>
    <% } %>
   </ul>
