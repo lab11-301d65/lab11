@@ -3,6 +3,7 @@
 const express = require('express');
 const cors = require('cors');
 const superagent = require('superagent');
+const ejs = require('ejs');
 const { response } = require('express');
 
 //================================================== Global Vars ==========================================================
@@ -18,8 +19,7 @@ app.use(cors());
 app.set('view engine', 'ejs');
 app.get('/', renderIndex);
 
-app.set('./pages/searches','ejs');
-app.get('/pages/searches', masterGoogleSorter);
+app.get('/views/pages/searches', masterGoogleSorter);
 
 //================================================== Functions ============================================================
 function renderIndex (req,res){
@@ -27,55 +27,36 @@ function renderIndex (req,res){
 }
 
 function masterGoogleSorter (req,res){
-  res.render('new');
+  res.render('pages/searches/new.ejs');
 
-  if (req.query.userSearch[1] === 'Author'){
-    // console.log('you found an author ' + req.query.userSearch[0]);
+  let userRadioButton = req.query.userSearch[1];
+  let userFormText = req.query.userSearch[0];
+  let authorQuery = 'inauthor';
+  let titleQuery = 'intitle';
+  let subjectQuery = 'subject';
+  let query = '';
 
-    let searchAuthor = req.query.userSearch[0];
-    const urlAuthor = `https://www.googleapis.com/books/v1/volumes?q=inauthor:${searchAuthor}`;
+  let googleBooksUrl = `https://www.googleapis.com/books/v1/volumes?q=${query}:${userFormText}` ;
 
-    superagent.get(urlAuthor)
-      .then(bookData => {
-        const books = bookData.body.items;
-
-        bookApiArray = books.map(construct => new Book(construct));
-        console.log(bookApiArray);
-      })
-      .catch(error => console.log(error));
-
-
-  } else if (req.query.userSearch[1] === 'Title'){
-    // console.log('you found a title ' + req.query.userSearch[0]);
-
-    let searchTitle = req.query.userSearch[0];
-    const urlTitle = `https://www.googleapis.com/books/v1/volumes?q=intitle:${searchTitle}`;
-
-    superagent.get(urlTitle)
-      .then(bookData => {
-        const books = bookData.body.items;
-
-        bookApiArray = books.map(construct => new Book(construct));
-        console.log(bookApiArray);
-
-      });
-
-
-  } else if (req.query.userSearch[1] === 'Subject'){
-    // console.log('you found a subject ' + req.query.userSearch[0]);
-
-    let searchSubject = req.query.userSearch[0];
-    const urlSubject = `https://www.googleapis.com/books/v1/volumes?q=subject:${searchSubject}`;
-
-    superagent.get(urlSubject)
-      .then(bookData => {
-        const books = bookData.body.items;
-
-        bookApiArray = books.map(construct => new Book(construct));
-        console.log(bookApiArray);
-
-      });
+  if (userRadioButton === 'Author'){
+    query = authorQuery;
+  } else if (userRadioButton === 'Title'){
+    query = titleQuery;
+  } else {
+    query = subjectQuery;
   }
+
+  console.log('QUERY: ', query);
+
+  superagent.get(googleBooksUrl)
+    .then(bookData => {
+      const books = bookData.body.items;
+      console.log('URL: ', googleBooksUrl);
+
+      bookApiArray = books.map(construct => new Book (construct));
+      console.log(bookApiArray);
+    })
+    .catch(error => console.log(error));
 }
 
 function renderBooks (req,res){
@@ -99,7 +80,6 @@ function Book (bookJsonData){
     let imgUrl = bookJsonData.volumeInfo.imageLinks[imgKey];
     this.img = imgUrl;
   }
-
 }
 
 //================================================== Start the server =====================================================
