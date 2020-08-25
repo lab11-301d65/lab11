@@ -19,49 +19,70 @@ app.use(cors());
 app.set('view engine', 'ejs');
 app.get('/', renderIndex);
 
+// renders search page
+// app.get('/views/pages/searches', renderSearchPage);
+
 app.get('/views/pages/searches', masterGoogleSorter);
+
+// TODO: POST call once user hits submit button
+// app.post('/views/pages/searches', masterGoogleSorter);
 
 //================================================== Functions ============================================================
 function renderIndex (req,res){
   res.render('index');
 }
 
+function renderSearchPage (req,res){
+  res.render('pages/searches/new.ejs');
+}
+
+// TODO: fix render show page function
+// ERR: HTTP HEADERS SENT
+function renderShowPage (req,res){
+  res.render('pages/searches/show.ejs');
+}
+
+
+// TODO: the whole route handler POST request thing --> route is working but I can't find the req.query.userSearch values in the new POST info
+
 function masterGoogleSorter (req,res){
   res.render('pages/searches/new.ejs');
+
+  console.log('POST REQUEST WORKING');
+  console.log(req);
 
   let userRadioButton = req.query.userSearch[1];
   let userFormText = req.query.userSearch[0];
   let authorQuery = 'inauthor';
   let titleQuery = 'intitle';
   let subjectQuery = 'subject';
-  let query = '';
+  let queryParameter = '';
 
-  let googleBooksUrl = `https://www.googleapis.com/books/v1/volumes?q=${query}:${userFormText}` ;
+  let googleBooksUrl = `https://www.googleapis.com/books/v1/volumes?q=${queryParameter}:${userFormText}` ;
 
   if (userRadioButton === 'Author'){
-    query = authorQuery;
+    queryParameter = authorQuery;
   } else if (userRadioButton === 'Title'){
-    query = titleQuery;
+    queryParameter = titleQuery;
   } else {
-    query = subjectQuery;
+    queryParameter = subjectQuery;
   }
 
-  console.log('QUERY: ', query);
-
+  // console.log('QUERY: ', queryParameter);
   superagent.get(googleBooksUrl)
     .then(bookData => {
       const books = bookData.body.items;
       console.log('URL: ', googleBooksUrl);
 
       bookApiArray = books.map(construct => new Book (construct));
-      console.log(bookApiArray);
+      console.log('CONSTRUCTED BOOK DATA: ', bookApiArray);
     })
+    .then(renderShowPage(req,res)) // TODO: fix render show page function
     .catch(error => console.log(error));
 }
 
-function renderBooks (req,res){
+//  TODO: render API results to page
 
-}
 
 //================================================== Constructor ============================================================
 
