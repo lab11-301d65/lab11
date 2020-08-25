@@ -9,7 +9,6 @@ const { response } = require('express');
 
 const PORT = process.env.PORT || 3003;
 const app = express();
-const googleApiKey = 'AIzaSyADHbnDFCOADLlJe7jY9k99ySVkkSGUvNA' ;
 
 app.use(express.static('./public'));
 app.use(cors());
@@ -27,7 +26,7 @@ function masterGoogleSorter (req,res){
     console.log('you found an author ' + req.query.userSearch[0]);
 
     let searchAuthor = req.query.userSearch[0];
-    const urlAuthor = `https://www.googleapis.com/books/v1/volumes?q=inauthor:${searchAuthor}&key=${googleApiKey}`;
+    const urlAuthor = `https://www.googleapis.com/books/v1/volumes?q=inauthor:${searchAuthor}`;
 
     superagent.get(urlAuthor)
       .then(bookData => {
@@ -42,7 +41,7 @@ function masterGoogleSorter (req,res){
     console.log('you found a title ' + req.query.userSearch[0]);
 
     let searchTitle = req.query.userSearch[0];
-    const urlTitle = `https://www.googleapis.com/books/v1/volumes?q=intitle:${searchTitle}&key=${googleApiKey}`;
+    const urlTitle = `https://www.googleapis.com/books/v1/volumes?q=intitle:${searchTitle}`;
 
     superagent.get(urlTitle)
       .then(bookData => {
@@ -54,8 +53,7 @@ function masterGoogleSorter (req,res){
     console.log('you found a subject ' + req.query.userSearch[0]);
 
     let searchSubject = req.query.userSearch[0];
-    const urlSubject = `https://www.googleapis.com/books/v1/volumes?q=subject:${searchSubject}&key=${googleApiKey}
-    `;
+    const urlSubject = `https://www.googleapis.com/books/v1/volumes?q=subject:${searchSubject}`;
 
     superagent.get(urlSubject)
       .then(bookData => {
