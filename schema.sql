@@ -1,4 +1,9 @@
-CREATE TABLE potato (
+DROP TABLE IF EXISTS book_saver;
+
+CREATE TABLE book_saver (
   id SERIAL PRIMARY KEY,
-  task VARCHAR(255) NOT NULL,
+  author VARCHAR(255),
+  isbn VARCHAR(255),
+  image_url VARCHAR(255),
+  description VARCHAR(255)
 )
