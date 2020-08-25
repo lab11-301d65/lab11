@@ -9,6 +9,7 @@ const { response } = require('express');
 
 const PORT = process.env.PORT || 3003;
 const app = express();
+let bookApiArray = [];
 
 app.use(express.static('./public'));
 app.use(cors());
@@ -23,7 +24,7 @@ function masterGoogleSorter (req,res){
   res.render('new');
 
   if (req.query.userSearch[1] === 'Author'){
-    console.log('you found an author ' + req.query.userSearch[0]);
+    // console.log('you found an author ' + req.query.userSearch[0]);
 
     let searchAuthor = req.query.userSearch[0];
     const urlAuthor = `https://www.googleapis.com/books/v1/volumes?q=inauthor:${searchAuthor}`;
@@ -32,32 +33,41 @@ function masterGoogleSorter (req,res){
       .then(bookData => {
         const books = bookData.body.items;
 
-        console.log(books.map(construct => new Book(construct)));
+        bookApiArray = books.map(construct => new Book(construct));
+        console.log(bookApiArray);
       })
       .catch(error => console.log(error));
 
 
   } else if (req.query.userSearch[1] === 'Title'){
-    console.log('you found a title ' + req.query.userSearch[0]);
+    // console.log('you found a title ' + req.query.userSearch[0]);
 
     let searchTitle = req.query.userSearch[0];
     const urlTitle = `https://www.googleapis.com/books/v1/volumes?q=intitle:${searchTitle}`;
 
     superagent.get(urlTitle)
       .then(bookData => {
-        console.log(bookData.body.items);
+        const books = bookData.body.items;
+
+        bookApiArray = books.map(construct => new Book(construct));
+        console.log(bookApiArray);
+
       });
 
 
   } else if (req.query.userSearch[1] === 'Subject'){
-    console.log('you found a subject ' + req.query.userSearch[0]);
+    // console.log('you found a subject ' + req.query.userSearch[0]);
 
     let searchSubject = req.query.userSearch[0];
     const urlSubject = `https://www.googleapis.com/books/v1/volumes?q=subject:${searchSubject}`;
 
     superagent.get(urlSubject)
       .then(bookData => {
-        console.log(bookData.body.items);
+        const books = bookData.body.items;
+
+        bookApiArray = books.map(construct => new Book(construct));
+        console.log(bookApiArray);
+
       });
   }
 }
@@ -71,10 +81,14 @@ function Book (bookJsonData){
   this.author = bookJsonData.volumeInfo.authors;
   this.description = bookJsonData.volumeInfo.description;
 
-  if (bookJsonData.volumeInfo.previewLink === null){
+  let imgCheck = bookJsonData.volumeInfo.imageLinks;
+
+  if (imgCheck === undefined){
     this.img = `https://i.imgur.com/J5LVHEL.jpg`;
   } else {
-    this.img = bookJsonData.volumeInfo.previewLink;
+    let imgKey = Object.keys(bookJsonData.volumeInfo.imageLinks)[1];
+    let imgUrl = bookJsonData.volumeInfo.imageLinks[imgKey];
+    this.img = imgUrl;
   }
 
 }
