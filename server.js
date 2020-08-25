@@ -18,14 +18,13 @@ app.use(cors());
 app.set('view engine', 'ejs');
 app.get('/', renderIndex);
 
-app.set('/pages/searches','ejs');
+app.set('./pages/searches','ejs');
 app.get('/pages/searches', masterGoogleSorter);
 
 //================================================== Functions ============================================================
 function renderIndex (req,res){
   res.render('index');
 }
-
 
 function masterGoogleSorter (req,res){
   res.render('new');
