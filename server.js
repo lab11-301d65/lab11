@@ -1,22 +1,24 @@
 'use strict';
 //================================================== Packages =============================================================
-
+require('dotenv').config(); // allows server to understand we have a .env that holds secrets 
 const express = require('express');
 const cors = require('cors');
 const superagent = require('superagent');
 const ejs = require('ejs');
 const { response } = require('express');
+const pg = require('pg')
 
 //================================================== Global Vars ==========================================================
-
 const PORT = process.env.PORT || 3002;
 const app = express();
-let bookApiArray = [];
+const client = new pg.Client(process.env.DATABASE_URL);
+client.on('error', console.error);
+const DATABASE_URL = process.env.DATABASE_URL;
 
 app.use(express.static('./public'));
 app.use(express.urlencoded({extended: true})); // this is a bodyparser that breaks up form input and puts it into the req.body
 app.use(cors());
-
+ 
 //================================================== Routes ===============================================================
 app.set('view engine', 'ejs');
 app.get('/', renderHomePage);
@@ -29,7 +31,10 @@ app.get('/books/:id', oneBookFromDatabase);
 
 //================================================== Functions ============================================================
 function renderHomePage (req,res){
-  res.render('index');
+  client.query('SELECT * FROM book_saver WHERE id=$1', [req.params.potatoId])
+  .then(resultFromSql => {
+    res.render('index', {author : resultFromSql.rows[0]});
+  });
 }
 
 // pg start
@@ -43,7 +48,6 @@ function renderNewEJS (req, res){
 //this needs to be its own function, having a render it it has it return just the render, then do nothing after
 function renderSearchPage (req,res){
   const inputText = req.body.userSearch;
-  console.log(inputText);
 
   let userRadioButton = inputText[1];
   let userFormText = inputText[0];
@@ -65,7 +69,10 @@ function renderSearchPage (req,res){
   superagent.get(googleBooksUrl)
     .then(bookData => {
       const books = bookData.body.items;
-      bookApiArray = books.map(construct => new Book (construct));
+    
+      let bookApiArray = books.map(construct => new Book (construct))
+      console.log(bookApiArray[0].img)
+
       res.render('pages/searches/show.ejs', {
         booksToFrontEnd : bookApiArray
       });
@@ -110,5 +117,8 @@ function Book (bookJsonData){
 }
 
 //================================================== Start the server =====================================================
-app.listen(PORT, () => console.log(`We are doing it live on ${PORT}`));
+client.connect()
+.then(() => {
+  app.listen(PORT, () => console.log(`We are doing it live on ${PORT}`));
+});
 
