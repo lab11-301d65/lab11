@@ -11,14 +11,20 @@
 </head>
 <body>
   <h1>Sup</h1>
-<nav>
+
+  <h2>Total books saved: <%= numberOfBooksInDataBase %></h2>
+
   <ul>
-    <li><a href="/">Home</a></li>
-    <li><a href="views/pages/searches">Search for Books</a></li>
-    <li><a href="view/pages/books/:id">Detail</a></li>
-  </ul>
-</nav>
-<%  %>
+    <% for(let i = 0; i < books.length; i++){ %>
+       <div>
+         <img src=<%= books[i].image_url%>>
+         <h1><%= books[i].title %></h1>
+         <h2><%= books[i].author %></h2>
+         <p><%= books[i].description %></p>
+         <p>ISBN: <%= books[i].isbn %></p>
+       </div>
+     <% } %>
+ </ul>
 
 </body>
 
