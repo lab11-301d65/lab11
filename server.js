@@ -3,8 +3,7 @@ require('dotenv').config(); // allows server to understand we have a .env that h
 const express = require('express');
 const cors = require('cors');
 const superagent = require('superagent');
-const ejs = require('ejs');
-const { response } = require('express');
+// const { response } = require('express');
 const pg = require('pg')
 
 //================================================== Global Vars ==========================================================
@@ -15,14 +14,15 @@ client.on('error', console.error);
 
 app.use(express.static('./public'));
 app.use(express.urlencoded({extended: true})); // this is a bodyparser that breaks up form input and puts it into the req.body
-app.use(cors());
+app.use(cors()); 
  
-//================================================== Routes ===============================================================
 app.set('view engine', 'ejs');
+//================================================== Routes ===============================================================
 app.get('/', renderHomePage);
-app.get('/search/new', renderNewEJS);
+app.get('/searches/new', renderNewEJS);
 app.post('/searches', renderSearchPage);
 app.get('/books/:id', getAllTasks);
+app.post('/books', insertBooks);
 
 //================================================== Functions ============================================================
 function renderHomePage (req,res){
@@ -36,12 +36,8 @@ function renderNewEJS (req, res){
   res.render('pages/searches/new.ejs');
 }
 
-// TODO: the whole route handler POST request thing --> route is working but I can't find the req.query.userSearch values in the new POST info
-
-//this needs to be its own function, having a render it it has it return just the render, then do nothing after
 function renderSearchPage (req,res){
   const inputText = req.body.userSearch;
-  // console.log(inputText)
   
   let userRadioButton = inputText[1];
   let userFormText = inputText[0];
@@ -65,8 +61,8 @@ function renderSearchPage (req,res){
       const books = bookData.body.items;
       let bookApiArray = books.map(construct => new Book (construct))
       console.log(bookApiArray[0].img)
-      res.render('pages/searches/show.ejs', {
-        booksToFrontEnd : bookApiArray
+      res.render('pages/searches/show', {
+        booksToFrontEnd : bookApiArray,
       })
     });
 }
@@ -74,8 +70,24 @@ function renderSearchPage (req,res){
 function getAllTasks(req, res){
   client.query('SELECT * FROM book_saver')
     .then(result => {
-      res.send('pages/books/show', {books: result.rows});
+      let bookcounter = result.rows.length
+      res.send('pages/index', {
+        books: result.rows,
+        numberOfBooksInDataBase : bookcounter
+      });
     })
+}
+
+function insertBooks(req, res) {
+  const {img_url, title, author, description, isbn, category} = JSON.parse(req.body.book);
+
+  const SQL = `INSERT INTO books (img_url, title, author, description, isbn, category) VALUES ($1, $2, $3, $4, $5, $6)`;
+  const arrayValues = [img_url, title, author, description, isbn, category];
+
+  client.query(SQL, arrayValues)
+    .then( () => {
+      res.redirect('/');
+  })
 }
 
 

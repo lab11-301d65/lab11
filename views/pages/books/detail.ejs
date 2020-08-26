@@ -15,7 +15,13 @@
 
   <%- include('../layout/header.ejs') %>
 
-  <%- include('../layout/section.ejs') %>
+  <div>
+    <img src=<%= .image_url%>>
+    <h1><%= .title %></h1>
+    <h2><%= .author %></h2>
+    <p><%= .description %></p>
+    <p>ISBN: <%= .isbn %></p>
+  </div>
   
 
 </body>

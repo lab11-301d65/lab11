@@ -8,19 +8,21 @@
 
 <body>
 
-  <!-- <%- include('../layout/header.ejs') %> -->
+  <%- include('../layout/header.ejs') %>
 
   <h1>RENDERING BOOKS N STUFF</h1>
   <ul>
     <% for(let i =0; i < booksToFrontEnd.length; i++){ %>
     <li>
       <h2><%= booksToFrontEnd[i].title %></h2>
-      <h3><%= booksToFrontEnd[i].description %></h3>
+      <h3><%= booksToFrontEnd[i].author %></h3>
+      <p><%= booksToFrontEnd[i].description %></p>
       <img src="<%= booksToFrontEnd[i].img %>" alt="">
+      <p>ISBN: <%= booksToFrontEnd[i].isbn %></p>
     </li>
    <% } %>
   </ul>
-
+  <%- include('../../layout/footer') %>
 </body>
 
 </html>
