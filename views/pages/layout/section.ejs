@@ -1,9 +1,15 @@
+
 <section>
-  <% for(let i =0; i < booksToFrontEnd.length; i++){ %>
-    <h2><%= booksToFrontEnd[i].title %></h2>
-    <p><%= booksToFrontEnd[i].author %></p>
-    <p><%= booksToFrontEnd[i].description %></p>
-    <p><%= booksToFrontEnd[i].isbn %></p>
-    <img src="<%= booksToFrontEnd[i].imgUrl %>" alt="">
- <% } %>
+  <h2>Total books saved: <%= numberOfBooksInDataBase %></h2>
+  <ul>
+    <% for(let i = 0; i < books.length; i++){ %>
+      <div>
+        <img src='<%= books[i].image_url%>'>
+        <h1><%= books[i].title %></h1>
+        <h2><%= books[i].author %></h2>
+        <p><%= books[i].description %></p>
+        <p><%= books[i].isbn %></p>
+      </div>
+      <% } %>
+    </ul>
 </section>

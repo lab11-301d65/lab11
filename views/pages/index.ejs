@@ -12,19 +12,11 @@
 <body>
   <h1>Sup</h1>
 
-  <h2>Total books saved: <%= numberOfBooksInDataBase %></h2>
+  <%- include('./layout/header') %>  
 
-  <ul>
-    <% for(let i = 0; i < books.length; i++){ %>
-       <div>
-         <img src=<%= books[i].image_url%>>
-         <h1><%= books[i].title %></h1>
-         <h2><%= books[i].author %></h2>
-         <p><%= books[i].description %></p>
-         <p>ISBN: <%= books[i].isbn %></p>
-       </div>
-     <% } %>
- </ul>
+  <%- include('./layout/section') %>
+  
+  <%- include('./layout/edit') %>
 
 </body>
 

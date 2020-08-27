@@ -9,23 +9,30 @@
   },
   "env": {
     "browser": true,
-    "es6": true,
-    "jest": true,
     "jquery": true,
-    "node": true
+    "node": true,
+    "es6": true,
+    "jest": true
   },
   "rules": {
-    "eol-last": "error",
     "eqeqeq": [
       "error",
       "always"
     ],
+    "no-template-curly-in-string": "error",
+    "no-console": "off",
+    "no-undefined": "off",
     "indent": [
       "error",
       2
     ],
-    "new-cap": "warn",
-    "no-console": "off",
+    "quotes": [
+      "warn",
+      "single",
+      {
+        "allowTemplateLiterals": true
+      }
+    ],
     "no-multi-spaces": [
       "warn",
       {
@@ -34,22 +41,14 @@
         }
       }
     ],
+    "no-trailing-spaces": "warn",
+    "new-cap": "warn",
     "no-redeclare": [
       "error",
       {
         "builtinGlobals": true
       }
     ],
-    "no-template-curly-in-string": "error",
-    "no-trailing-spaces": "warn",
-    "no-undefined": "off",
-    "quotes": [
-      "warn",
-      "single",
-      {
-        "allowTemplateLiterals": true
-      }
-    ],
-    "semi": "error"
+    "eol-last": "error"
   }
 }
