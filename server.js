@@ -4,7 +4,9 @@ const express = require('express');
 const cors = require('cors');
 const superagent = require('superagent');
 // const { response } = require('express');
-const pg = require('pg')
+const pg = require('pg');
+const { response } = require('express');
+const methodOverride = require('method-override');
 
 //================================================== Global Vars ==========================================================
 const PORT = process.env.PORT || 3002;
@@ -13,27 +15,59 @@ const client = new pg.Client(process.env.DATABASE_URL);
 client.on('error', console.error);
 
 app.use(express.static('./public'));
-app.use(express.urlencoded({extended: true})); // this is a bodyparser that breaks up form input and puts it into the req.body
+app.use(express.urlencoded({extended: true})); 
 app.use(cors()); 
+app.use(methodOverride('_method'));
  
 app.set('view engine', 'ejs');
 //================================================== Routes ===============================================================
 app.get('/', renderHomePage);
 app.get('/searches/new', renderNewEJS);
 app.post('/searches', renderSearchPage);
-app.get('/books/:id', getAllTasks);
 app.post('/books', insertBooks);
 
+// app.delete('/tasks/:id', deleteTask)
+app.put('/books/:idPotato', updateTask);
+
 //================================================== Functions ============================================================
+// function deleteTask(req, res){
+//   const {id} = request.params;
+//   const SQL = 'DELETE FROM book_saver WHERE id=$1'
+//   client.query(SQL, [id])
+//   .then(() => {
+//     response.redirect('/tasks')
+//   })
+// }
+
+function updateTask(req, res){
+  const SQL = `UPDATE book_saver SET 
+                title = $1,
+                author = $2, 
+                description = $3,
+                image_url = $4, 
+                isbn = $5 WHERE id=$6`
+  const values = [req.body.title, req.body.author, req.body.description, req.body.img, req.body.isbn, req.params.idPotato]
+  console.log(values)
+  client.query(SQL, values)
+  .then(() => {
+    res.redirect('/')
+  })
+  .catch(console.log)
+}
+
 function renderHomePage (req,res){
   client.query('SELECT * FROM book_saver')
-  .then(resultFromSql => {
-    res.render('pages/index', {books : resultFromSql.rows});
-  });
+    .then(result => {
+      let bookcounter = result.rows.length
+      res.render('pages/index', {
+        books: result.rows,
+        numberOfBooksInDataBase : bookcounter
+      });
+    })
 }
 
 function renderNewEJS (req, res){
-  res.render('pages/searches/new.ejs');
+  res.render('pages/searches/new');
 }
 
 function renderSearchPage (req,res){
@@ -67,43 +101,33 @@ function renderSearchPage (req,res){
     });
 }
 
-function getAllTasks(req, res){
-  client.query('SELECT * FROM book_saver')
-    .then(result => {
-      let bookcounter = result.rows.length
-      res.send('pages/index', {
-        books: result.rows,
-        numberOfBooksInDataBase : bookcounter
-      });
-    })
-}
 
 function insertBooks(req, res) {
-  const {img_url, title, author, description, isbn, category} = JSON.parse(req.body.book);
-
-  const SQL = `INSERT INTO books (img_url, title, author, description, isbn, category) VALUES ($1, $2, $3, $4, $5, $6)`;
-  const arrayValues = [img_url, title, author, description, isbn, category];
+  const {img, title, author, description, isbn, category} = req.body;
+  console.log(' we are on line' , req.body);
+  const SQL = `INSERT INTO book_saver (image_url, title, author, description, isbn, category) VALUES ($1, $2, $3, $4, $5, $6)`;
+  const arrayValues = [img, title, author, description.slice(0, 200), isbn, category];
 
   client.query(SQL, arrayValues)
     .then( () => {
       res.redirect('/');
-  })
+  });
 }
 
 
 //================================================== Constructor ============================================================
 function Book (bookJsonData){
+  console.log(bookJsonData.volumeInfo)
   this.title = bookJsonData.volumeInfo.title;
   this.author = bookJsonData.volumeInfo.authors;
   this.description = bookJsonData.volumeInfo.description;
-
-  let imgCheck = bookJsonData.volumeInfo.imageLinks;
+  this.isbn = `${bookJsonData.volumeInfo.industryIdentifiers[0].type} ${bookJsonData.volumeInfo.industryIdentifiers[0].identifier}`;
+  let imgCheck = bookJsonData.volumeInfo.imageLinks.smallThumbnail;
 
   if (imgCheck === undefined){
     this.img = `https://i.imgur.com/J5LVHEL.jpg`;
   } else {
-    let imgKey = Object.keys(bookJsonData.volumeInfo.imageLinks)[1];
-    let imgUrl = bookJsonData.volumeInfo.imageLinks[imgKey];
+    let imgUrl = bookJsonData.volumeInfo.imageLinks.smallThumbnail;
     this.img = imgUrl;
   }
 }

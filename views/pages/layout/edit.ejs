@@ -1,0 +1,17 @@
+
+<% books.forEach(booksaved => { %>
+<section>
+  <form action="/books/<%= booksaved.id %>?_method=PUT" method="POST">
+    <fieldset>
+      Title: <input type ="text" value="title" name="title">
+      Author: <input type ="text" value="author" name="author">
+      Description: <input type ="text" value="description" name="description">
+      Image: <input type ="text" value="image" name="image">
+      Isbn: <input type ="text" value="isbn" name="isbn">
+      Save book: <input type ="text" value="save book">
+
+      <input type="submit" value="Update Book">
+    </fieldset>
+  </form>
+  <% }) %>
+</section>
