@@ -26,18 +26,18 @@ app.get('/searches/new', renderNewEJS);
 app.post('/searches', renderSearchPage);
 app.post('/books', insertBooks);
 
-// app.delete('/tasks/:id', deleteTask)
+app.delete('/books/:id', deleteTask)
 app.put('/books/:idPotato', updateTask);
 
 //================================================== Functions ============================================================
-// function deleteTask(req, res){
-//   const {id} = request.params;
-//   const SQL = 'DELETE FROM book_saver WHERE id=$1'
-//   client.query(SQL, [id])
-//   .then(() => {
-//     response.redirect('/tasks')
-//   })
-// }
+function deleteTask(req, res){
+  const {id} = req.params;
+  const SQL = 'DELETE FROM book_saver WHERE id=$1'
+  client.query(SQL, [id])
+  .then(() => {
+    res.redirect('/')
+  })
+}
 
 function updateTask(req, res){
   const SQL = `UPDATE book_saver SET 
